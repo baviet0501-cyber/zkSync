@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  era-test-node:
+    image: matterlabs/era-test-node:latest
+    ports:
+      - "8011:8011"
+    command: ["--port", "8011", "--log", "error"]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-s",
+          "-X",
+          "POST",
+          "-H",
+          "Content-Type: application/json",
+          "--data",
+          '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}',
+          "http://localhost:8011",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s

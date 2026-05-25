@@ -1,0 +1,2384 @@
+/* ==========================================================================
+   zkSync Era dApp - Complete Styles
+   ========================================================================== */
+
+/* CSS Variables */
+:root {
+  --primary: #4B32C3;
+  --primary-light: #6B52E3;
+  --primary-dark: #3A2590;
+  --primary-bg: rgba(75, 50, 195, 0.08);
+  --accent: #00D4AA;
+  --accent-light: #00E8BC;
+  --accent-dark: #00BFA0;
+
+  --bg: #0A0A1A;
+  --bg-secondary: #111128;
+  --bg-card: #161633;
+  --bg-card-hover: #1C1C3D;
+  --bg-input: #1A1A3E;
+
+  --text: #FFFFFF;
+  --text-secondary: #A0A0C0;
+  --text-muted: #6B6B8D;
+
+  --border: #2A2A5A;
+  --border-light: #3A3A6A;
+
+  --success: #00D4AA;
+  --warning: #FFB84D;
+  --error: #FF5C7C;
+  --info: #6B9FFF;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(75, 50, 195, 0.3);
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --transition: 200ms ease;
+  --transition-slow: 350ms ease;
+}
+
+/* ==========================================================================
+   Reset & Base
+   ========================================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Background pattern */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(75, 50, 195, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(0, 212, 170, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(107, 66, 255, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+a:hover {
+  color: var(--accent-light);
+}
+
+/* ==========================================================================
+   App Layout
+   ========================================================================== */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10, 10, 26, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-content {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.logo-icon svg {
+  width: 36px;
+  height: 36px;
+}
+
+.logo-text h1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+
+.logo-subtitle {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-secondary);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+}
+
+.tab {
+  padding: 8px 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all var(--transition);
+}
+
+.tab:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tab.active {
+  color: var(--text);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.connection-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.dot.connected {
+  background: var(--success);
+  box-shadow: 0 0 8px rgba(0, 212, 170, 0.5);
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ==========================================================================
+   Main Content
+   ========================================================================== */
+
+.app-main {
+  flex: 1;
+  max-width: 1360px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.app-grid {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ==========================================================================
+   Cards
+   ========================================================================== */
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all var(--transition);
+}
+
+.card:hover {
+  border-color: var(--border-light);
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.card-header h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  flex: 1;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.badge-zksync {
+  background: var(--primary-bg);
+  color: var(--primary-light);
+  border: 1px solid rgba(75, 50, 195, 0.3);
+}
+
+.badge-erc20 {
+  background: rgba(0, 212, 170, 0.1);
+  color: var(--accent);
+  border: 1px solid rgba(0, 212, 170, 0.3);
+}
+
+.badge-nft {
+  background: rgba(107, 159, 255, 0.1);
+  color: var(--info);
+  border: 1px solid rgba(107, 159, 255, 0.3);
+}
+
+/* ==========================================================================
+   Wallet Card
+   ========================================================================== */
+
+.wallet-card .card-body {
+  padding: 0;
+}
+
+.wallet-not-connected,
+.wallet-connected {
+  padding: 20px;
+}
+
+.wallet-info-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.wallet-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--success);
+}
+
+.status-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.status-indicator.connected {
+  background: var(--success);
+  box-shadow: 0 0 10px rgba(0, 212, 170, 0.5);
+}
+
+.wallet-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 0.85rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.l2-badge {
+  color: var(--accent);
+  font-size: 0.78rem;
+}
+
+.l1-badge {
+  color: var(--info);
+  font-size: 0.78rem;
+}
+
+.btn-copy {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  opacity: 0.5;
+  transition: opacity var(--transition);
+  padding: 2px;
+}
+
+.btn-copy:hover {
+  opacity: 1;
+}
+
+.wallet-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: var(--text);
+  box-shadow: 0 2px 12px rgba(75, 50, 195, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(75, 50, 195, 0.4);
+}
+
+.btn-secondary {
+  background: var(--bg-input);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--primary-light);
+  background: var(--bg-card-hover);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.btn-outline:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
+.btn-lg {
+  width: 100%;
+  padding: 14px 24px;
+  font-size: 1rem;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+.btn-icon {
+  font-size: 1.1rem;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #DC3545, #FF5C7C);
+  color: var(--text);
+  box-shadow: 0 2px 12px rgba(220, 53, 69, 0.3);
+}
+
+.btn-danger:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(220, 53, 69, 0.5);
+}
+
+.btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Form Elements
+   ========================================================================== */
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  transition: border-color var(--transition);
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(75, 50, 195, 0.15);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.input:disabled {
+  opacity: 0.6;
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.input-row .input {
+  flex: 1;
+}
+
+.form-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.balance-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   Sub-tabs (Greeter / Token switcher in the dApp tab)
+   ========================================================================== */
+
+.sub-tab-bar {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px !important;
+  background: var(--bg-secondary);
+}
+
+.sub-tab {
+  flex: 1;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all var(--transition);
+}
+
+.sub-tab:hover {
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.sub-tab.active {
+  color: var(--text);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ==========================================================================
+   Error Message
+   ========================================================================== */
+
+.error-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(255, 92, 124, 0.1);
+  border: 1px solid rgba(255, 92, 124, 0.3);
+  border-radius: var(--radius-sm);
+  color: var(--error);
+  font-size: 0.8rem;
+  margin-top: 12px;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   Spinner
+   ========================================================================== */
+
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: var(--text);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   Greeter Panel
+   ========================================================================== */
+
+.greeting-display {
+  margin-bottom: 20px;
+}
+
+.greeting-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.greeting-message {
+  padding: 16px;
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+
+.greeting-text {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--accent);
+  word-break: break-word;
+}
+
+.greeting-placeholder {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.greeting-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.meta-item {
+  display: flex;
+  gap: 8px;
+  font-size: 0.75rem;
+}
+
+.meta-label {
+  color: var(--text-muted);
+  min-width: 90px;
+}
+
+.meta-value {
+  color: var(--text-secondary);
+}
+
+.greeting-form {
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+/* ==========================================================================
+   Token Panel
+   ========================================================================== */
+
+.token-balance-display {
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(75, 50, 195, 0.1), rgba(0, 212, 170, 0.05));
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  border: 1px solid rgba(75, 50, 195, 0.2);
+}
+
+.token-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.token-amount {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text);
+  font-family: var(--font-mono);
+  letter-spacing: -1px;
+}
+
+.token-symbol {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.token-name {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.token-total-supply {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.token-placeholder {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.placeholder-icon {
+  font-size: 2.5rem;
+  margin-bottom: 8px;
+}
+
+.token-placeholder p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.transfer-form {
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+/* ==========================================================================
+   Network Stats
+   ========================================================================== */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  transition: border-color var(--transition);
+}
+
+.stat-item:hover {
+  border-color: var(--border-light);
+}
+
+.stat-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.stat-value {
+  font-size: 0.85rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.stats-footer {
+  margin-top: 12px;
+  text-align: center;
+}
+
+.stats-source {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Educational Panel
+   ========================================================================== */
+
+.edu-intro {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.edu-section {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: border-color var(--transition);
+}
+
+.edu-section:hover {
+  border-color: var(--border-light);
+}
+
+.edu-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg-input);
+  border: none;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition);
+  text-align: left;
+}
+
+.edu-section-header:hover {
+  background: var(--bg-card-hover);
+}
+
+.edu-section-icon {
+  font-size: 1.1rem;
+}
+
+.edu-section-title {
+  flex: 1;
+}
+
+.edu-chevron {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  transition: transform var(--transition);
+}
+
+.edu-chevron.open {
+  transform: rotate(180deg);
+}
+
+.edu-section-content {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.edu-section-content h4 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin: 12px 0 8px;
+}
+
+.edu-section-content h4:first-child {
+  margin-top: 0;
+}
+
+.edu-section-content p {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+
+.edu-section-content ul,
+.edu-section-content ol {
+  padding-left: 20px;
+  margin-bottom: 8px;
+}
+
+.edu-section-content li {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 4px;
+}
+
+.edu-section-content strong {
+  color: var(--text);
+}
+
+/* Comparison Grid */
+.comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.comparison-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px;
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.comparison-icon {
+  font-size: 1.2rem;
+}
+
+.comparison-item strong {
+  font-size: 0.85rem;
+}
+
+.comparison-item span:last-child {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Benefits */
+.benefits {
+  margin-top: 12px;
+}
+
+.benefit-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.benefit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(0, 212, 170, 0.08);
+  border: 1px solid rgba(0, 212, 170, 0.2);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+.benefit-icon {
+  font-size: 0.8rem;
+}
+
+/* Architecture Grid */
+.arch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.arch-item {
+  padding: 12px;
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.arch-item strong {
+  display: block;
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+
+.arch-item p {
+  font-size: 0.75rem !important;
+  margin-bottom: 0 !important;
+  color: var(--text-muted) !important;
+}
+
+.arch-note {
+  font-size: 0.78rem !important;
+  color: var(--text-muted) !important;
+  font-style: italic;
+  margin-top: 8px;
+}
+
+/* Paymaster flow */
+.paymaster-demo {
+  margin-top: 12px;
+}
+
+.flow-code {
+  display: block;
+  padding: 12px 16px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+  line-height: 1.6;
+  margin-top: 8px;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* Future items */
+.future-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.future-item {
+  padding: 12px;
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.future-item strong {
+  display: block;
+  font-size: 0.85rem;
+  margin-bottom: 2px;
+}
+
+.future-item p {
+  font-size: 0.78rem !important;
+  margin-bottom: 0 !important;
+  color: var(--text-muted) !important;
+}
+
+/* ==========================================================================
+   Info Card
+   ========================================================================== */
+
+.info-card .info-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.info-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.info-content h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.info-content p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.code-block {
+  display: block;
+  padding: 8px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+/* ==========================================================================
+   Transaction Toast
+   ========================================================================== */
+
+.toast {
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  max-width: 380px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  z-index: 1000;
+  animation: slide-in 0.3s ease;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast-success {
+  border-color: rgba(0, 212, 170, 0.3);
+}
+
+.toast-error {
+  border-color: rgba(255, 92, 124, 0.3);
+}
+
+.toast-pending {
+  border-color: rgba(255, 184, 77, 0.3);
+}
+
+.toast-content {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+}
+
+.toast-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.toast-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toast-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.toast-detail {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  word-break: break-all;
+}
+
+.toast-link {
+  font-size: 0.75rem;
+  color: var(--accent) !important;
+  text-decoration: underline;
+  margin-top: 2px;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 4px;
+  flex-shrink: 0;
+  transition: color var(--transition);
+}
+
+.toast-close:hover {
+  color: var(--text);
+}
+
+/* ==========================================================================
+   Learn View
+   ========================================================================== */
+
+.learn-view {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+.resource-list {
+  list-style: none;
+  padding: 0;
+}
+
+.resource-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.resource-list li:last-child {
+  border-bottom: none;
+}
+
+.resource-list a {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  transition: color var(--transition);
+  display: block;
+}
+
+.resource-list a:hover {
+  color: var(--accent);
+}
+
+/* ==========================================================================
+   NFT Panel
+   ========================================================================== */
+
+/* NFT View Layout */
+.nft-view {
+  max-width: 100%;
+}
+
+.nft-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+.nft-main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.nft-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Collection Info */
+.nft-collection-info {
+  margin-bottom: 20px;
+}
+
+.nft-collection-name {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nft-collection-symbol {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* Supply Bar */
+.nft-supply-bar-container {
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  border: 1px solid var(--border);
+}
+
+.nft-supply-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.nft-supply-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.nft-supply-count {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.nft-supply-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(75, 50, 195, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.nft-supply-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: 4px;
+  transition: width 0.5s ease;
+  min-width: 2%;
+}
+
+.nft-supply-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+/* Placeholder */
+.nft-placeholder {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.nft-placeholder p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* Mint Area */
+.nft-mint-area {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  margin-bottom: 20px;
+}
+
+.nft-mint-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.nft-mint-header .form-title {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.nft-mint-info {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.nft-mint-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nft-mint-count {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+}
+
+.nft-count-value {
+  min-width: 28px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.btn-nft-mint {
+  flex: 1;
+  padding: 12px 20px;
+  font-size: 0.9rem;
+}
+
+.nft-first-mint-hint {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: rgba(107, 159, 255, 0.08);
+  border: 1px solid rgba(107, 159, 255, 0.2);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  color: var(--info);
+  line-height: 1.5;
+}
+
+/* Custom Mint Form */
+.nft-custom-mint {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.nft-name-input,
+.nft-desc-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  transition: border-color var(--transition);
+  outline: none;
+}
+
+.nft-name-input:focus,
+.nft-desc-input:focus {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(75, 50, 195, 0.15);
+}
+
+.nft-name-input::placeholder,
+.nft-desc-input::placeholder {
+  color: var(--text-muted);
+}
+
+.nft-name-input:disabled,
+.nft-desc-input:disabled {
+  opacity: 0.6;
+}
+
+.nft-desc-input {
+  resize: vertical;
+  min-height: 50px;
+}
+
+.nft-image-upload {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.nft-image-preview {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 2px solid var(--primary-light);
+  flex-shrink: 0;
+  animation: preview-pop 0.2s ease;
+}
+
+@keyframes preview-pop {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.nft-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  color: var(--error);
+  border-color: rgba(255, 92, 124, 0.3);
+}
+
+/* Gallery */
+.nft-gallery-section {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.nft-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.nft-card {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.nft-card:hover {
+  border-color: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(75, 50, 195, 0.2);
+}
+
+.nft-card-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.nft-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.nft-card:hover .nft-card-image img {
+  transform: scale(1.05);
+}
+
+.nft-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.nft-card:hover .nft-card-overlay {
+  opacity: 1;
+}
+
+.nft-card-view {
+  padding: 6px 16px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.nft-card-info {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nft-card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.nft-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+
+.status-confirmed {
+  color: var(--success);
+  background: rgba(0, 212, 170, 0.08);
+  border: 1px solid rgba(0, 212, 170, 0.22);
+}
+
+.status-pending {
+  color: var(--warning);
+  background: rgba(255, 184, 77, 0.08);
+  border: 1px solid rgba(255, 184, 77, 0.22);
+}
+
+.status-failed {
+  color: var(--error);
+  background: rgba(255, 92, 124, 0.08);
+  border: 1px solid rgba(255, 92, 124, 0.22);
+}
+
+.nft-card-pending {
+  border-color: rgba(255, 184, 77, 0.35);
+}
+
+.nft-card-failed {
+  border-color: rgba(255, 92, 124, 0.35);
+}
+
+.nft-token-id {
+  font-size: 0.68rem;
+  color: var(--info);
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.nft-card-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.nft-card-desc {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.nft-card-creator {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* Tx Status in Modal */
+.nft-tx-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(0, 212, 170, 0.06);
+  border: 1px solid rgba(0, 212, 170, 0.2);
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+}
+
+.nft-tx-status-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.nft-tx-status-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nft-tx-status-label {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.nft-tx-status-value {
+  font-size: 0.82rem;
+  color: var(--success);
+  font-weight: 600;
+}
+
+/* Empty State */
+.nft-empty {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.nft-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+}
+
+.nft-empty-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.nft-empty-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* NFT Detail Modal */
+.nft-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 24px;
+  animation: fade-in 0.2s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.nft-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: modal-slide-up 0.3s ease;
+  box-shadow: var(--shadow-lg);
+}
+
+@keyframes modal-slide-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.nft-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: all var(--transition);
+}
+
+.nft-modal-close:hover {
+  background: var(--bg-card-hover);
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
+.nft-modal-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.nft-modal-image {
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+.nft-modal-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.nft-modal-details {
+  padding: 24px;
+}
+
+.nft-modal-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, var(--primary-light), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nft-modal-attributes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.nft-attr {
+  padding: 10px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.nft-attr-label {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.nft-attr-value {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.badge-zk {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--primary-bg);
+  color: var(--primary-light);
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.nft-modal-description {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.nft-modal-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nft-tx-hash {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  word-break: break-all;
+}
+
+/* NFT Sidebar */
+.nft-faucet-text {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.nft-gas-comparison {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 16px;
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.gas-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.gas-item-l2 {
+  background: rgba(0, 212, 170, 0.06);
+  border: 1px solid rgba(0, 212, 170, 0.15);
+}
+
+.gas-icon {
+  font-size: 1.2rem;
+}
+
+.gas-item strong {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--text);
+}
+
+.gas-cost {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.gas-arrow {
+  font-size: 1.2rem;
+  color: var(--accent);
+  font-weight: bold;
+}
+
+.nft-benefits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nft-benefit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+
+.app-footer {
+  border-top: 1px solid var(--border);
+  padding: 16px 24px;
+  margin-top: 40px;
+}
+
+.footer-content {
+  max-width: 1360px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.footer-content a {
+  color: var(--accent);
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .app-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .learn-view {
+    grid-template-columns: 1fr;
+  }
+
+  .nft-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .header-content {
+    padding: 0 16px;
+    gap: 12px;
+  }
+
+  .logo-text h1 {
+    font-size: 1rem;
+  }
+
+  .logo-subtitle {
+    display: none;
+  }
+
+  .tabs {
+    gap: 2px;
+  }
+
+  .tab {
+    padding: 6px 12px;
+    font-size: 0.78rem;
+  }
+
+  .app-main {
+    padding: 16px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .arch-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .toast {
+    left: 16px;
+    right: 16px;
+    max-width: none;
+    bottom: 70px;
+  }
+
+  .nft-gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 8px;
+  }
+
+  .nft-mint-actions {
+    flex-direction: column;
+  }
+
+  .btn-nft-mint {
+    width: 100%;
+  }
+
+  .nft-modal-attributes {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   Demo Dashboard Refinement
+   ========================================================================== */
+
+.dashboard-app .app-main {
+  max-width: 1280px;
+}
+
+.dashboard-header .logo-icon {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--primary), var(--accent-dark));
+  color: var(--text);
+}
+
+.dashboard-shell {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.dashboard-sidebar {
+  position: sticky;
+  top: 92px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.dashboard-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.workflow-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.workflow-tab {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 78px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.workflow-tab:hover {
+  color: var(--text);
+  border-color: var(--border-light);
+  background: var(--bg-card-hover);
+}
+
+.workflow-tab.active {
+  color: var(--text);
+  border-color: rgba(0, 212, 170, 0.5);
+  box-shadow: 0 0 0 1px rgba(0, 212, 170, 0.1), var(--shadow-md);
+}
+
+.workflow-tab span {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.workflow-tab strong {
+  font-size: 0.9rem;
+}
+
+.workflow-tab small {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.workflow-card-header {
+  align-items: flex-start;
+}
+
+.workflow-card-header > div:nth-child(2) {
+  flex: 1;
+}
+
+.workflow-card-header p {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.contract-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.summary-tile {
+  min-width: 0;
+  padding: 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.summary-tile-wide {
+  grid-column: 1 / -1;
+}
+
+.summary-label,
+.form-label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.summary-label {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  margin-bottom: 5px;
+}
+
+.summary-tile strong {
+  display: block;
+  color: var(--text);
+  font-size: 0.86rem;
+  overflow-wrap: anywhere;
+}
+
+.form-label-row {
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.form-label-row label {
+  margin-bottom: 0;
+}
+
+.network-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.network-pill.is-l2 {
+  color: var(--accent);
+  border-color: rgba(0, 212, 170, 0.25);
+}
+
+.network-pill.is-l1 {
+  color: var(--warning);
+  border-color: rgba(255, 184, 77, 0.25);
+}
+
+.card-icon,
+.stat-icon,
+.toast-icon,
+.inline-tx-icon,
+.placeholder-icon,
+.nft-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spin-icon {
+  animation: spin 0.8s linear infinite;
+}
+
+.inline-tx-link,
+.toast-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inline-tx-result {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+}
+
+.inline-tx-result.success {
+  border-color: rgba(0, 212, 170, 0.28);
+}
+
+.inline-tx-result.error {
+  border-color: rgba(255, 92, 124, 0.28);
+}
+
+.inline-tx-result.pending {
+  border-color: rgba(255, 184, 77, 0.28);
+}
+
+.inline-tx-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inline-tx-title {
+  flex: 1;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.inline-tx-close {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.inline-tx-hash {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.inline-tx-link {
+  margin-top: 8px;
+  font-size: 0.76rem;
+}
+
+.toast-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nft-status-badge {
+  gap: 4px;
+}
+
+.nft-tx-status-icon {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 720px) {
+  .dashboard-header {
+    height: auto;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .header-status {
+    flex-wrap: wrap;
+  }
+
+  .workflow-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .contract-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .input-row {
+    flex-direction: column;
+  }
+}
