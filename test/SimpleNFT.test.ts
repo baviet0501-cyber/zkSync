@@ -58,6 +58,10 @@ describe("SimpleNFT", function () {
       expect(deployTime).to.be.greaterThan(0n);
     });
 
+    it("should start with no last minted timestamp", async function () {
+      expect(await nft.lastMintedAt()).to.equal(0n);
+    });
+
     it("should start with totalSupply of 0", async function () {
       expect(await nft.totalSupply()).to.equal(0n);
     });
@@ -108,7 +112,7 @@ describe("SimpleNFT", function () {
       expect(await nft.tokenURI(1n)).to.equal(TOKEN_URI);
     });
 
-    it("should set the creator as the contract owner", async function () {
+    it("should set the creator as the minter", async function () {
       const user1Addr = await user1.getAddress();
       const ownerAddr = await owner.getAddress();
       await nft.mintNFT(user1Addr, TOKEN_URI);
@@ -134,6 +138,7 @@ describe("SimpleNFT", function () {
       expect(await nft.totalMinted()).to.equal(0n);
       await nft.mintNFT(user1Addr, TOKEN_URI);
       expect(await nft.totalMinted()).to.equal(1n);
+      expect(await nft.lastMintedAt()).to.be.greaterThan(0n);
       await nft.mintNFT(user1Addr, TOKEN_URI);
       expect(await nft.totalMinted()).to.equal(2n);
     });
@@ -172,13 +177,14 @@ describe("SimpleNFT", function () {
       expect(event).to.not.be.undefined;
     });
 
-    it("should revert when called by non-owner", async function () {
+    it("should allow non-owner wallets to mint", async function () {
       const user1Addr = await user1.getAddress();
       const nftAsUser1 = nft.connect(user1);
 
-      await expect(
-        nftAsUser1.mintNFT(user1Addr, TOKEN_URI)
-      ).to.be.revertedWithCustomError(nftAsUser1, "OwnableUnauthorizedAccount");
+      await nftAsUser1.mintNFT(user1Addr, TOKEN_URI);
+
+      expect(await nft.ownerOf(1n)).to.equal(user1Addr);
+      expect(await nft.getCreator(1n)).to.equal(user1Addr);
     });
 
     it("should revert when minting to zero address", async function () {
@@ -256,13 +262,14 @@ describe("SimpleNFT", function () {
       expect(event).to.not.be.undefined;
     });
 
-    it("should revert when called by non-owner", async function () {
+    it("should allow non-owner wallets to mint default NFTs", async function () {
       const user1Addr = await user1.getAddress();
       const nftAsUser1 = nft.connect(user1);
 
-      await expect(
-        nftAsUser1.mintDefaultNFT(user1Addr)
-      ).to.be.revertedWithCustomError(nftAsUser1, "OwnableUnauthorizedAccount");
+      await nftAsUser1.mintDefaultNFT(user1Addr);
+
+      expect(await nft.ownerOf(1n)).to.equal(user1Addr);
+      expect(await nft.getCreator(1n)).to.equal(user1Addr);
     });
 
     it("should revert when minting to zero address", async function () {
@@ -398,6 +405,8 @@ describe("SimpleNFT", function () {
         expect(info.mintedCount).to.equal(3n);
         expect(info.deployTime).to.be.a("bigint");
         expect(info.deployTime).to.be.greaterThan(0n);
+        expect(info.lastMintTime).to.be.a("bigint");
+        expect(info.lastMintTime).to.be.greaterThan(0n);
       });
 
       it("should reflect updated values after new mints", async function () {
@@ -407,6 +416,7 @@ describe("SimpleNFT", function () {
         const info = await nft.getCollectionInfo();
         expect(info.currentSupply).to.equal(4n);
         expect(info.mintedCount).to.equal(4n);
+        expect(info.lastMintTime).to.be.greaterThan(0n);
       });
 
       it("should reflect updated values after burn", async function () {

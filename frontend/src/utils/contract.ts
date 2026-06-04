@@ -6,8 +6,9 @@ export const GREETER_ABI = [
   "function greet() view returns (string)",
   "function setGreeting(string memory _greeting)",
   "function owner() view returns (address)",
+  "function lastUpdater() view returns (address)",
   "function lastUpdated() view returns (uint256)",
-  "function getInfo() view returns (address, string, uint256, uint256)",
+  "function getInfo() view returns (address, address, string, uint256, uint256)",
   "event GreetingChanged(address indexed changer, string newGreeting, uint256 timestamp)",
   "event ContractDeployed(address indexed deployer, string initialGreeting, uint256 timestamp)",
 ];
@@ -43,7 +44,7 @@ export const NFT_ABI = [
   "function tokenURI(uint256 tokenId) view returns (string)",
   "function getTokensOfOwner(address owner) view returns (uint256[])",
   "function getCreator(uint256 tokenId) view returns (address)",
-  "function getCollectionInfo() view returns (string, string, uint256, uint256, uint256, uint256)",
+  "function getCollectionInfo() view returns (string, string, uint256, uint256, uint256, uint256, uint256)",
   "function owner() view returns (address)",
   "function mintNFT(address to, string memory uri) returns (uint256)",
   "function mintDefaultNFT(address to) returns (uint256)",
@@ -64,6 +65,7 @@ export async function fetchGreeting(
 ): Promise<{
   greeting: string;
   owner: string;
+  lastUpdater: string;
   lastUpdated: number;
   chainId: number;
 }> {
@@ -74,12 +76,13 @@ export async function fetchGreeting(
     providerOrSigner
   );
 
-  const [owner, greeting, lastUpdated, chainId] =
+  const [owner, lastUpdater, greeting, lastUpdated, chainId] =
     await contract.getInfo();
 
   return {
     greeting,
     owner,
+    lastUpdater,
     lastUpdated: lastUpdated.toNumber(),
     chainId: chainId.toNumber(),
   };
@@ -179,6 +182,7 @@ export async function getNFTCollectionInfo(
   currentSupply: string;
   totalMinted: string;
   deploymentTime: string;
+  lastMintedAt: string;
   owner: string;
 }> {
   const e = await getEthers();
@@ -195,6 +199,10 @@ export async function getNFTCollectionInfo(
     currentSupply: info[3].toString(),
     totalMinted: info[4].toString(),
     deploymentTime: new Date(info[5].toNumber() * 1000).toLocaleString(),
+    lastMintedAt:
+      info[6].toNumber() > 0
+        ? new Date(info[6].toNumber() * 1000).toLocaleString()
+        : "Not minted yet",
     owner,
   };
 }

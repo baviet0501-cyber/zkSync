@@ -20,6 +20,7 @@ interface GreeterPanelProps {
   greeting: {
     message: string;
     owner: string;
+    lastUpdater: string;
     lastUpdated: number;
     chainId: number;
   } | null;
@@ -43,11 +44,7 @@ const GreeterPanel: React.FC<GreeterPanelProps> = ({
   const [newGreeting, setNewGreeting] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [dismissedInline, setDismissedInline] = useState(false);
-  const isOwner =
-    !!greeting?.owner &&
-    !!walletAddress &&
-    greeting.owner.toLowerCase() === walletAddress.toLowerCase();
-  const canUpdateGreeting = isConnected && isOwner;
+  const canUpdateGreeting = isConnected;
 
   useEffect(() => {
     if (txResult?.hash) setDismissedInline(false);
@@ -67,8 +64,8 @@ const GreeterPanel: React.FC<GreeterPanelProps> = ({
       return;
     }
 
-    if (!canUpdateGreeting) {
-      setFormError("Only the contract owner can update the greeting.");
+    if (!isConnected) {
+      setFormError("Connect your wallet to update the greeting.");
       return;
     }
 
@@ -101,11 +98,11 @@ const GreeterPanel: React.FC<GreeterPanelProps> = ({
           <div className="summary-tile">
             <span className="summary-label">
               <User size={14} />
-              Owner
+              Updated by
             </span>
             <strong className="mono">
               {greeting
-                ? `${greeting.owner.slice(0, 6)}...${greeting.owner.slice(-4)}`
+                ? `${greeting.lastUpdater.slice(0, 6)}...${greeting.lastUpdater.slice(-4)}`
                 : "--"}
             </strong>
           </div>
@@ -131,11 +128,6 @@ const GreeterPanel: React.FC<GreeterPanelProps> = ({
         {isConnected && (
           <form className="greeting-form" onSubmit={handleSubmit}>
             <div className="form-group">
-              {greeting && !isOwner && (
-                <div className="error-message">
-                  This connected wallet is not the contract owner, so it cannot update the greeting.
-                </div>
-              )}
               <div className="form-label-row">
                 <label htmlFor="greeting-input">New greeting</label>
                 <span className="balance-hint">

@@ -254,6 +254,8 @@ VITE_PAYMASTER_ADDRESS=0x<deployed-paymaster-address>
 VITE_NFT_ADDRESS=0x<deployed-nft-address>
 ```
 
+If the frontend dev server is already running, stop it and run it again after changing `frontend/.env`. Vite only reads these environment variables when the dev server starts.
+
 ### 6. Start Frontend
 
 ```bash
@@ -344,11 +346,12 @@ zksync-dapp/
 contract Greeter {
     function greet() public view returns (string memory);
     function setGreeting(string memory _greeting) public;
+    function lastUpdater() public view returns (address);
     function isOwner(address _user) public view returns (bool);
-    function getInfo() public view returns (address, string, uint256, uint256);
+    function getInfo() public view returns (address, address, string, uint256, uint256);
 }
 ```
-A simple contract demonstrating **EVM compatibility** - works identically on L1 and zkSync L2.
+A simple contract demonstrating **EVM compatibility** - works identically on L1 and zkSync L2. Any connected wallet can update the greeting, and the contract records `lastUpdater` so the frontend can show the wallet that made the latest update.
 
 ### SimpleToken.sol
 ```solidity
@@ -372,15 +375,17 @@ Demonstrates **Account Abstraction** - allow users to pay gas fees in ERC20 toke
 ### SimpleNFT.sol
 ```solidity
 contract SimpleNFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Ownable {
-    function mintNFT(address to, string memory uri) public onlyOwner;
-    function mintDefaultNFT(address to) public onlyOwner;
+    function mintNFT(address to, string memory uri) public;
+    function mintDefaultNFT(address to) public;
+    function lastMintedAt() public view returns (uint256);
     function getTokensOfOwner(address owner) public view returns (uint256[] memory);
     function getCreator(uint256 tokenId) public view returns (address);
-    function getCollectionInfo() public view returns (...);
+    function getCollectionInfo() public view returns (string, string, uint256, uint256, uint256, uint256, uint256);
     function tokenExists(uint256 tokenId) public view returns (bool);
     function setBaseURI(string memory _uri) public onlyOwner;
 }
 ```
+Any connected wallet can mint NFTs, while owner-only access is kept for collection-level settings such as `setBaseURI`. The frontend displays `Last minted` from `lastMintedAt` and updates it after successful mints.
 **ERC-721** NFT collection with **Enumerable** tracking và **URIStorage** cho on-chain SVG metadata. Giới hạn **10,000 NFTs** với supply cap.
 
 ---
@@ -418,6 +423,8 @@ npm run compile
 # Deploy to zkSync Era Testnet
 npm run deploy:testnet
 ```
+
+After deployment, copy the printed Greeter, SimpleToken, Paymaster, and SimpleNFT addresses into `frontend/.env`, then restart the frontend dev server.
 
 ### Deploy to Mainnet
 

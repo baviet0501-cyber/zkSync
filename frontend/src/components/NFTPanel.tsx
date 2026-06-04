@@ -28,6 +28,7 @@ interface NFTPanelProps {
     currentSupply: string;
     totalMinted: string;
     deploymentTime: string;
+    lastMintedAt: string;
     owner: string;
   } | null;
   nftTokens: NFTToken[];
@@ -86,11 +87,7 @@ const NFTPanel: React.FC<NFTPanelProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isZkSyncNetwork = networkChainId === 300 || networkChainId === 324;
-  const isNFTContractOwner =
-    !!nftCollection?.owner &&
-    !!walletAddress &&
-    nftCollection.owner.toLowerCase() === walletAddress.toLowerCase();
-  const canMintNFT = isConnected && isZkSyncNetwork && isNFTContractOwner;
+  const canMintNFT = isConnected && isZkSyncNetwork;
   const mintProgress = nftCollection
     ? ((parseInt(nftCollection.totalMinted) / parseInt(nftCollection.maxSupply)) * 100).toFixed(1)
     : "0";
@@ -129,11 +126,6 @@ const NFTPanel: React.FC<NFTPanelProps> = ({
 
     if (!isZkSyncNetwork) {
       setFormError("Switch MetaMask to zkSync Era Testnet before minting.");
-      return;
-    }
-
-    if (!isNFTContractOwner) {
-      setFormError("This connected wallet is not the contract owner, so it cannot update the NFT collection.");
       return;
     }
 
@@ -203,7 +195,7 @@ const NFTPanel: React.FC<NFTPanelProps> = ({
               </div>
               <div className="nft-supply-footer">
                 <span>Supply: {mintProgress}% filled</span>
-                <span>Deployed: {nftCollection.deploymentTime}</span>
+                <span>Last minted: {nftCollection.lastMintedAt}</span>
               </div>
             </div>
           </div>
@@ -235,13 +227,6 @@ const NFTPanel: React.FC<NFTPanelProps> = ({
               <div className="error-message">
                 <AlertCircle size={16} />
                 Switch MetaMask to zkSync Era Testnet before minting or loading NFTs.
-              </div>
-            )}
-
-            {isZkSyncNetwork && !isNFTContractOwner && (
-              <div className="error-message">
-                <AlertCircle size={16} />
-                This connected wallet is not the contract owner, so it cannot update the NFT collection.
               </div>
             )}
 
@@ -400,10 +385,10 @@ const NFTPanel: React.FC<NFTPanelProps> = ({
               <Image size={40} />
             </div>
             <p className="nft-empty-text">
-              You do not own NFTs from this collection yet.
+              This wallet has not minted any NFTs from this collection yet.
             </p>
             <p className="nft-empty-hint">
-              Mint one above to see its image, description, and transaction status here.
+              Mint one above to add it to this gallery with its image, description, and transaction status.
             </p>
           </div>
         )}
