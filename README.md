@@ -157,10 +157,6 @@ Dự án này bao gồm:
 
 > ⛽ **Phí gas:** Mint NFT trên Ethereum L1: $10-$100+ → zkSync L2: **< $0.01**
 
-### 6. Tab Learn 📚
-
-Tab **📚 Learn** cung cấp kiến thức về Layer 2, ZK-Rollup, zkSync Architecture, Account Abstraction & Paymasters, ZK Stack. Các mục dạng accordion có thể mở rộng.
-
 ### ⚠️ Xử lý sự cố
 
 | Vấn đề | Giải pháp |
