@@ -14,7 +14,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
  * @notice An ERC-721 NFT contract deployed on zkSync Era demonstrating:
  *         - Low-cost NFT minting (80-90% cheaper than L1)
  *         - Full ERC-721 metadata standard
- *         - Owner-only minting with supply cap
+ *         - Public minting with supply cap
  *
  * @dev Demonstrates how NFTs work on zkSync Era L2 with minimal gas fees.
  *      Users can mint NFTs for a fraction of the cost on Ethereum L1.
@@ -31,6 +31,9 @@ contract SimpleNFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable
 
     /// @notice Timestamp of contract deployment
     uint256 public deploymentTime;
+
+    /// @notice Timestamp of the most recent NFT mint
+    uint256 public lastMintedAt;
 
     /// @notice Total tokens minted (not just current supply, including burned)
     uint256 public totalMinted;
@@ -64,12 +67,12 @@ contract SimpleNFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable
     }
 
     /**
-     * @notice Mint a new NFT (owner only)
+     * @notice Mint a new NFT
      * @param to Recipient address
      * @param uri Token URI for metadata
      * @return tokenId The minted token ID
      */
-    function mintNFT(address to, string memory uri) public onlyOwner returns (uint256) {
+    function mintNFT(address to, string memory uri) public returns (uint256) {
         require(totalMinted < MAX_SUPPLY, "Max supply reached");
         require(to != address(0), "Cannot mint to zero address");
         require(bytes(uri).length > 0, "URI cannot be empty");
@@ -77,6 +80,7 @@ contract SimpleNFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable
         uint256 tokenId = _nextTokenId;
         _nextTokenId++;
         totalMinted++;
+        lastMintedAt = block.timestamp;
 
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
@@ -92,13 +96,14 @@ contract SimpleNFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable
      * @param to Recipient address
      * @return tokenId The minted token ID
      */
-    function mintDefaultNFT(address to) public onlyOwner returns (uint256) {
+    function mintDefaultNFT(address to) public returns (uint256) {
         require(totalMinted < MAX_SUPPLY, "Max supply reached");
         require(to != address(0), "Cannot mint to zero address");
 
         uint256 tokenId = _nextTokenId;
         _nextTokenId++;
         totalMinted++;
+        lastMintedAt = block.timestamp;
 
         string memory uri = string(
             abi.encodePacked(
@@ -149,6 +154,7 @@ contract SimpleNFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable
      * @return currentSupply Current total supply
      * @return mintedCount Total minted so far
      * @return deployTime Deployment timestamp
+     * @return lastMintTime Timestamp of the most recent mint
      */
     function getCollectionInfo()
         public
@@ -159,7 +165,8 @@ contract SimpleNFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable
             uint256 maxSupply,
             uint256 currentSupply,
             uint256 mintedCount,
-            uint256 deployTime
+            uint256 deployTime,
+            uint256 lastMintTime
         )
     {
         return (
@@ -168,7 +175,8 @@ contract SimpleNFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable
             MAX_SUPPLY,
             this.totalSupply(),
             totalMinted,
-            deploymentTime
+            deploymentTime,
+            lastMintedAt
         );
     }
 

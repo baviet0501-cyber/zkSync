@@ -43,6 +43,13 @@ describe("Greeter", function () {
       );
     });
 
+    it("should set the deployer as the initial last updater", async function () {
+      const updater = await greeter.lastUpdater();
+      expect(updater.toLowerCase()).to.equal(
+        (await wallet.getAddress()).toLowerCase()
+      );
+    });
+
     it("should set lastUpdated on deployment", async function () {
       const lastUpdated = await greeter.lastUpdated();
       expect(lastUpdated).to.be.a("bigint");
@@ -81,11 +88,15 @@ describe("Greeter", function () {
   });
 
   describe("setGreeting()", function () {
-    it("should update the greeting when called by owner", async function () {
+    it("should update the greeting when called by any connected wallet", async function () {
       const newGreeting = "zkSync is awesome!";
-      const tx = await greeter.setGreeting(newGreeting);
+      const greeterAsOther = greeter.connect(otherWallet);
+      await greeterAsOther.setGreeting(newGreeting);
 
       expect(await greeter.greet()).to.equal(newGreeting);
+      expect((await greeter.lastUpdater()).toLowerCase()).to.equal(
+        (await otherWallet.getAddress()).toLowerCase()
+      );
     });
 
     it("should emit GreetingChanged event", async function () {
@@ -112,11 +123,14 @@ describe("Greeter", function () {
       expect(newTimestamp).to.be.greaterThan(oldTimestamp);
     });
 
-    it("should revert when called by non-owner", async function () {
+    it("should allow non-owner wallets to update the greeting", async function () {
       const greeterAsOther = greeter.connect(otherWallet);
-      await expect(
-        greeterAsOther.setGreeting("Unauthorized update")
-      ).to.be.revertedWith("Only owner can call this function");
+      await greeterAsOther.setGreeting("Community update");
+
+      expect(await greeter.greet()).to.equal("Community update");
+      expect((await greeter.lastUpdater()).toLowerCase()).to.equal(
+        (await otherWallet.getAddress()).toLowerCase()
+      );
     });
 
     it("should revert with empty greeting", async function () {
@@ -165,15 +179,22 @@ describe("Greeter", function () {
       expect(info.ownerAddress.toLowerCase()).to.equal(
         (await wallet.getAddress()).toLowerCase()
       );
+      expect(info.updaterAddress.toLowerCase()).to.equal(
+        (await wallet.getAddress()).toLowerCase()
+      );
       expect(info.currentGreeting).to.equal(initialGreeting);
       expect(info.updatedAt).to.be.a("bigint");
       expect(info.chainId).to.be.a("bigint");
     });
 
     it("should reflect updated greeting after setGreeting", async function () {
-      await greeter.setGreeting("Updated for info test");
+      const greeterAsOther = greeter.connect(otherWallet);
+      await greeterAsOther.setGreeting("Updated for info test");
       const info = await greeter.getInfo();
       expect(info.currentGreeting).to.equal("Updated for info test");
+      expect(info.updaterAddress.toLowerCase()).to.equal(
+        (await otherWallet.getAddress()).toLowerCase()
+      );
     });
   });
 

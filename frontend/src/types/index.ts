@@ -17,6 +17,7 @@ export interface ContractAddresses {
 export interface GreeterData {
   greeting: string;
   owner: string;
+  lastUpdater: string;
   lastUpdated: number;
   chainId: number;
 }
@@ -53,6 +54,7 @@ export interface NFTCollectionInfo {
   currentSupply: string;
   totalMinted: string;
   deploymentTime: string;
+  lastMintedAt: string;
   userTokens: NFTToken[];
 }
 

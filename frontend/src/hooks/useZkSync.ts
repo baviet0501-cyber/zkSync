@@ -124,6 +124,7 @@ interface ZkSyncState {
   greeting: {
     message: string;
     owner: string;
+    lastUpdater: string;
     lastUpdated: number;
     chainId: number;
   } | null;
@@ -141,6 +142,7 @@ interface ZkSyncState {
     currentSupply: string;
     totalMinted: string;
     deploymentTime: string;
+    lastMintedAt: string;
     owner: string;
   } | null;
   nftTokens: NFTToken[];
@@ -344,6 +346,7 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
           greeting: {
             message: greeterData.greeting,
             owner: greeterData.owner,
+            lastUpdater: greeterData.lastUpdater,
             lastUpdated: greeterData.lastUpdated,
             chainId: greeterData.chainId,
           },
@@ -529,6 +532,7 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
             ? {
                 message: greeterData.greeting,
                 owner: greeterData.owner,
+                lastUpdater: greeterData.lastUpdater,
                 lastUpdated: greeterData.lastUpdated,
                 chainId: greeterData.chainId,
               }
@@ -646,16 +650,6 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
 
       if (!isZkSyncChain(state.wallet.network?.chainId)) {
         updateWallet({ error: "Switch to zkSync Era Testnet before minting NFTs." });
-        return;
-      }
-
-      if (
-        state.nftCollection?.owner &&
-        state.nftCollection.owner.toLowerCase() !== state.wallet.address.toLowerCase()
-      ) {
-        updateWallet({
-          error: "This connected wallet is not the contract owner, so it cannot update the NFT collection.",
-        });
         return;
       }
 
@@ -794,7 +788,6 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
       resolveWalletProvider,
       state.wallet.address,
       state.wallet.network,
-      state.nftCollection?.owner,
     ]
   );
 

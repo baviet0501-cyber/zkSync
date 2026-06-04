@@ -18,11 +18,14 @@ contract Greeter {
     /// @notice The stored greeting message
     string private greeting;
 
-    /// @notice Owner of the contract (deployer)
+    /// @notice Deployer of the contract
     address public owner;
 
     /// @notice Timestamp of the last greeting update
     uint256 public lastUpdated;
+
+    /// @notice Address that last updated the greeting
+    address public lastUpdater;
 
     /// @notice Emitted when the greeting is updated
     event GreetingChanged(
@@ -38,12 +41,6 @@ contract Greeter {
         uint256 timestamp
     );
 
-    /// @dev Modifier to restrict access to owner
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only owner can call this function");
-        _;
-    }
-
     /**
      * @notice Contract constructor
      * @param _greeting The initial greeting message
@@ -51,6 +48,7 @@ contract Greeter {
     constructor(string memory _greeting) {
         greeting = _greeting;
         owner = msg.sender;
+        lastUpdater = msg.sender;
         lastUpdated = block.timestamp;
 
         emit ContractDeployed(msg.sender, _greeting, block.timestamp);
@@ -66,10 +64,10 @@ contract Greeter {
     }
 
     /**
-     * @notice Updates the greeting message (owner only)
+     * @notice Updates the greeting message
      * @param _greeting The new greeting message
      */
-    function setGreeting(string memory _greeting) public onlyOwner {
+    function setGreeting(string memory _greeting) public {
         require(bytes(_greeting).length > 0, "Greeting cannot be empty");
         require(
             bytes(_greeting).length <= 256,
@@ -77,6 +75,7 @@ contract Greeter {
         );
 
         greeting = _greeting;
+        lastUpdater = msg.sender;
         lastUpdated = block.timestamp;
 
         emit GreetingChanged(msg.sender, _greeting, block.timestamp);
@@ -93,7 +92,8 @@ contract Greeter {
 
     /**
      * @notice Get contract info
-     * @return ownerAddress Owner of the contract
+     * @return ownerAddress Deployer of the contract
+     * @return updaterAddress Address that last updated the greeting
      * @return currentGreeting Current greeting message
      * @return updatedAt Last update timestamp
      * @return chainId Block chain ID (on zkSync Era, this will return the L2 chain ID)
@@ -103,11 +103,12 @@ contract Greeter {
         view
         returns (
             address ownerAddress,
+            address updaterAddress,
             string memory currentGreeting,
             uint256 updatedAt,
             uint256 chainId
         )
     {
-        return (owner, greeting, lastUpdated, block.chainid);
+        return (owner, lastUpdater, greeting, lastUpdated, block.chainid);
     }
 }
