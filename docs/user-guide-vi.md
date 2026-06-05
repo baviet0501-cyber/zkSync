@@ -58,10 +58,10 @@
 | Thông số | Giá trị |
 |----------|---------|
 | **Network Name** | zkSync Era Testnet |
-| **RPC URL** | `https://testnet.era.zksync.dev` |
+| **RPC URL** | `https://sepolia.era.zksync.dev` |
 | **Chain ID** | `300` (0x12C) |
 | **Currency Symbol** | ETH |
-| **Block Explorer** | `https://goerli.explorer.zksync.io` |
+| **Block Explorer** | `https://sepolia.explorer.zksync.io` |
 
 > 💡 **Mẹo:** Ứng dụng sẽ tự động thêm mạng này khi bạn nhấn "Switch to zkSync Testnet", bạn không cần làm thủ công.
 
@@ -281,8 +281,8 @@ Trong toast confirmed, bạn có thể nhấn **"🔍 View on zkSync Explorer �
 
 | Cách | Mô tả |
 |------|-------|
-| **zkSync Portal Faucet** | https://goerli.portal.zksync.io/faucet |
-| **Bridge từ Sepolia** | Dùng [zkSync Bridge](https://goerli.portal.zksync.io/bridge) để bridge ETH từ Sepolia lên zkSync Era Testnet |
+| **zkSync Era Sepolia ETH** | Nạp ETH testnet trực tiếp vào ví trên zkSync Era Sepolia, hoặc bridge từ Ethereum Sepolia sang zkSync Era Sepolia |
+| **Bridge từ Sepolia** | Dùng zkSync Bridge/Portal để bridge ETH từ Ethereum Sepolia lên zkSync Era Sepolia |
 | **Third-party faucets** | Tìm "zkSync Era Sepolia faucet" trên Google |
 
 ---
