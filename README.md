@@ -164,7 +164,7 @@ Dự án này bao gồm:
 | MetaMask không kết nối | Cài MetaMask, mở khóa ví |
 | "Wrong network" | Nhấn "Switch to zkSync Testnet" |
 | Contract interaction fails | Kiểm tra `.env` đã có đúng address chưa |
-| Số dư = 0 | Dùng [faucet](https://goerli.portal.zksync.io/faucet) |
+| Số dư = 0 | Nạp ETH testnet vào ví trên zkSync Era Sepolia |
 | NFT không hiển thị | Nhấn nút 🔄 refresh |
 | "User denied transaction" | Thử lại + nhấn Confirm |
 
@@ -212,7 +212,7 @@ copy .env.example .env
 
 Edit `.env`:
 ```env
-ZKSYNC_TESTNET_URL=https://testnet.era.zksync.dev
+ZKSYNC_TESTNET_URL=https://sepolia.era.zksync.dev
 ETHEREUM_L1_URL=https://rpc.sepolia.org
 WALLET_PRIVATE_KEY=0x<your-test-wallet-private-key>
 ```
@@ -243,7 +243,7 @@ copy frontend\.env.example frontend\.env
 
 Edit `frontend/.env`:
 ```env
-VITE_ZKSYNC_RPC_URL=https://testnet.era.zksync.dev
+VITE_ZKSYNC_RPC_URL=https://sepolia.era.zksync.dev
 VITE_GREETER_ADDRESS=0x<deployed-greeter-address>
 VITE_TOKEN_ADDRESS=0x<deployed-token-address>
 VITE_PAYMASTER_ADDRESS=0x<deployed-paymaster-address>
@@ -481,7 +481,7 @@ npm test
 
 1. Deploy contracts to testnet
 2. Connect MetaMask to zkSync Era Testnet
-3. Get test ETH from [zkSync Faucet](https://goerli.portal.zksync.io/faucet)
+3. Get test ETH on zkSync Era Sepolia
 4. Interact with all features in the dApp
 
 ---

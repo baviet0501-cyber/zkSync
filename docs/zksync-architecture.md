@@ -169,11 +169,11 @@ zkSync đang phát triển **ZK Stack** - một framework để tạo:
 
 ### RPC Endpoints:
 - **Mainnet**: `https://mainnet.era.zksync.io`
-- **Testnet**: `https://testnet.era.zksync.dev`
+- **Testnet**: `https://sepolia.era.zksync.dev`
 
 ### Block Explorers:
 - **Mainnet**: https://explorer.zksync.io
-- **Testnet**: https://goerli.explorer.zksync.io
+- **Testnet**: https://sepolia.explorer.zksync.io
 
 ## 8. Tài Liệu Tham Khảo
 
