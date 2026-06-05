@@ -135,6 +135,54 @@ function sortNFTTokens(tokens: NFTToken[]): NFTToken[] {
   });
 }
 
+async function fetchMintTransactionHashes(
+  nftAddress: string,
+  tokenIds: string[],
+  provider: providers.Provider
+): Promise<Record<string, string>> {
+  if (tokenIds.length === 0) return {};
+
+  const e = await getEthers();
+  const nftInterface = new e.utils.Interface(NFT_ABI);
+  const nftCreatedTopic = nftInterface.getEventTopic("NFTCreated");
+  const transferTopic = nftInterface.getEventTopic("Transfer");
+  const zeroTopic = e.utils.hexZeroPad(ZERO_ADDRESS, 32);
+  const txByToken: Record<string, string> = {};
+
+  for (const tokenId of tokenIds) {
+    const tokenTopic = e.utils.hexZeroPad(e.BigNumber.from(tokenId).toHexString(), 32);
+
+    try {
+      const nftCreatedLogs = await provider.getLogs({
+        address: nftAddress,
+        fromBlock: 0,
+        toBlock: "latest",
+        topics: [nftCreatedTopic, tokenTopic],
+      });
+
+      if (nftCreatedLogs[0]?.transactionHash) {
+        txByToken[tokenId] = nftCreatedLogs[0].transactionHash;
+        continue;
+      }
+
+      const transferLogs = await provider.getLogs({
+        address: nftAddress,
+        fromBlock: 0,
+        toBlock: "latest",
+        topics: [transferTopic, zeroTopic, null, tokenTopic],
+      });
+
+      if (transferLogs[0]?.transactionHash) {
+        txByToken[tokenId] = transferLogs[0].transactionHash;
+      }
+    } catch (error) {
+      console.warn(`Unable to recover mint transaction for NFT #${tokenId}:`, error);
+    }
+  }
+
+  return txByToken;
+}
+
 interface ZkSyncState {
   wallet: WalletState;
   greeting: {
@@ -427,6 +475,16 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
           getOwnerNFTs(contracts.simpleNFT, addr, p),
         ]);
 
+        const recoveredTxByToken = await fetchMintTransactionHashes(
+          contracts.simpleNFT,
+          ownerTokens.map((token) => token.tokenId),
+          p
+        );
+        nftTxByTokenRef.current = {
+          ...nftTxByTokenRef.current,
+          ...recoveredTxByToken,
+        };
+
         // Format NFT data — try to parse tokenURI as JSON metadata
         const formattedTokens: NFTToken[] = ownerTokens.map((t) => {
           let name = `${collectionInfo.name} #${t.tokenId}`;
@@ -470,7 +528,10 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
               : hasContractMetadata
               ? "contract"
               : "fallback",
-            txHash: cached?.txHash || nftTxByTokenRef.current[t.tokenId],
+            txHash:
+              cached?.txHash ||
+              nftTxByTokenRef.current[t.tokenId] ||
+              recoveredTxByToken[t.tokenId],
             mintedAt: cached?.mintedAt,
           };
         });
