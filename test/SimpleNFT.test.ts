@@ -112,6 +112,23 @@ describe("SimpleNFT", function () {
       expect(await nft.tokenURI(1n)).to.equal(TOKEN_URI);
     });
 
+    it("should keep data URI metadata intact with a collection base URI", async function () {
+      const user1Addr = await user1.getAddress();
+      const metadata = {
+        name: "Persistent NFT",
+        description: "Metadata should survive browser storage resets.",
+        image: "data:image/png;base64,iVBORw0KGgo=",
+      };
+      const metadataURI = `data:application/json;base64,${Buffer.from(
+        JSON.stringify(metadata),
+        "utf8"
+      ).toString("base64")}`;
+
+      await nft.mintNFT(user1Addr, metadataURI);
+
+      expect(await nft.tokenURI(1n)).to.equal(metadataURI);
+    });
+
     it("should set the creator as the minter", async function () {
       const user1Addr = await user1.getAddress();
       const ownerAddr = await owner.getAddress();

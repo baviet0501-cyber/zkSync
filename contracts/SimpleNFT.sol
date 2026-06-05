@@ -41,6 +41,9 @@ contract SimpleNFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable
     /// @notice Mapping from token ID to creator address
     mapping(uint256 => address) public creators;
 
+    /// @notice Explicit token metadata URI saved at mint time
+    mapping(uint256 => string) private _explicitTokenURIs;
+
     /// @notice Event emitted when an NFT is minted
     event NFTCreated(
         uint256 indexed tokenId,
@@ -83,7 +86,7 @@ contract SimpleNFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable
         lastMintedAt = block.timestamp;
 
         _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
+        _explicitTokenURIs[tokenId] = uri;
         creators[tokenId] = msg.sender;
 
         emit NFTCreated(tokenId, msg.sender, to, uri, block.timestamp);
@@ -114,7 +117,7 @@ contract SimpleNFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable
         );
 
         _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
+        _explicitTokenURIs[tokenId] = uri;
         creators[tokenId] = msg.sender;
 
         emit NFTCreated(tokenId, msg.sender, to, uri, block.timestamp);
@@ -198,7 +201,11 @@ contract SimpleNFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable
         override(ERC721, ERC721Enumerable)
         returns (address)
     {
-        return super._update(to, tokenId, auth);
+        address previousOwner = super._update(to, tokenId, auth);
+        if (to == address(0)) {
+            delete _explicitTokenURIs[tokenId];
+        }
+        return previousOwner;
     }
 
     function _increaseBalance(address account, uint128 value)
@@ -214,7 +221,8 @@ contract SimpleNFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable
         override(ERC721, ERC721URIStorage)
         returns (string memory)
     {
-        return super.tokenURI(tokenId);
+        require(_ownerOf(tokenId) != address(0), "Token does not exist");
+        return _explicitTokenURIs[tokenId];
     }
 
     function supportsInterface(bytes4 interfaceId)
