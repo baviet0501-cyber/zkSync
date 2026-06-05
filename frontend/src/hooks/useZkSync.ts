@@ -86,7 +86,9 @@ function parseTokenMetadata(tokenURI: string): Partial<Pick<NFTToken, "name" | "
   try {
     let raw = tokenURI;
     if (tokenURI.startsWith("data:application/json;base64,")) {
-      raw = atob(tokenURI.replace("data:application/json;base64,", ""));
+      const binary = atob(tokenURI.replace("data:application/json;base64,", ""));
+      const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+      raw = new TextDecoder().decode(bytes);
     } else if (tokenURI.startsWith("data:application/json,")) {
       raw = decodeURIComponent(tokenURI.replace("data:application/json,", ""));
     } else if (tokenURI.startsWith("%7B")) {
@@ -104,6 +106,20 @@ function parseTokenMetadata(tokenURI: string): Partial<Pick<NFTToken, "name" | "
   } catch {
     return {};
   }
+}
+
+function encodeMetadataDataUri(metadata: {
+  name: string;
+  description: string;
+  image: string;
+}): string {
+  const json = JSON.stringify(metadata);
+  const bytes = new TextEncoder().encode(json);
+  let binary = "";
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+  return `data:application/json;base64,${btoa(binary)}`;
 }
 
 function getSortableTokenId(tokenId: string): number {
@@ -182,6 +198,7 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
   // Lazy-loaded zkSync provider — zksync-ethers is dynamically imported to reduce bundle size
   const zkSyncProviderRef = useRef<any>(null);
   const walletProviderRef = useRef<NonNullable<Window["ethereum"]> | null>(null);
+  const nftTxByTokenRef = useRef<Record<string, string>>({});
 
   const resolveWalletProvider = useCallback(async () => {
     const provider = await getInjectedWalletProvider();
@@ -429,7 +446,15 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
             }
           }
 
+          const parsedMetadata = parseTokenMetadata(t.tokenURI);
+          if (parsedMetadata.name) name = parsedMetadata.name;
+          if (parsedMetadata.description) description = parsedMetadata.description;
+          if (parsedMetadata.image) image = parsedMetadata.image;
+
           const cached = readCachedNFTMetadata(chainId, contracts.simpleNFT, t.tokenId);
+          const hasContractMetadata = Boolean(
+            parsedMetadata.name || parsedMetadata.description || parsedMetadata.image
+          );
 
           return {
             tokenId: t.tokenId,
@@ -442,10 +467,10 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
             status: cached?.status || "confirmed",
             metadataSource: cached
               ? "local"
-              : t.tokenURI.startsWith("{") || t.tokenURI.startsWith("%7B")
+              : hasContractMetadata
               ? "contract"
               : "fallback",
-            txHash: cached?.txHash,
+            txHash: cached?.txHash || nftTxByTokenRef.current[t.tokenId],
             mintedAt: cached?.mintedAt,
           };
         });
@@ -673,8 +698,8 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
         // Build custom metadata JSON if image was uploaded
         const chainId = state.wallet.network?.chainId || 300;
         const nftInterface = new e.utils.Interface(NFT_ABI);
-        const metadataJSON = metadata?.imageDataUri
-          ? JSON.stringify({
+        const metadataURI = metadata?.imageDataUri
+          ? encodeMetadataDataUri({
               name: metadata.name?.trim() || "My NFT",
               description: metadata.description || "",
               image: metadata.imageDataUri,
@@ -687,11 +712,11 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
         const mintedTokenIds: string[] = [];
 
         for (let i = 0; i < count; i++) {
-          const tx = metadataJSON
+          const tx = metadataURI
             ? await contractMintNFT(
                 contracts.simpleNFT,
                 state.wallet.address,
-                metadataJSON,
+                metadataURI,
                 signer
               )
             : await mintDefaultNFT(
@@ -711,9 +736,9 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
                 image: metadata?.imageDataUri || generateDemoNFTImage(`${Date.now()}${i}`, "NFT"),
                 owner: state.wallet.address!,
                 creator: state.wallet.address!,
-                tokenURI: metadataJSON || "",
+                tokenURI: metadataURI || "",
                 status: "pending",
-                metadataSource: metadataJSON ? "local" : "fallback",
+                metadataSource: metadataURI ? "local" : "fallback",
                 txHash: tx.hash,
             },
             ...prev.nftTokens,
@@ -727,13 +752,28 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
 
           const receipt = await tx.wait();
           lastStatus = receipt.status === 1 ? "confirmed" : "failed";
+          const txMintedTokenIds: string[] = [];
 
           for (const log of receipt.logs || []) {
             try {
               const parsed = nftInterface.parseLog(log);
+              let tokenId: string | null = null;
+
               if (parsed.name === "NFTCreated") {
-                const tokenId = parsed.args.tokenId.toString();
+                tokenId = parsed.args.tokenId.toString();
+              }
+
+              if (
+                parsed.name === "Transfer" &&
+                parsed.args.from?.toLowerCase?.() === ZERO_ADDRESS
+              ) {
+                tokenId = parsed.args.tokenId.toString();
+              }
+
+              if (tokenId && !txMintedTokenIds.includes(tokenId)) {
+                txMintedTokenIds.push(tokenId);
                 mintedTokenIds.push(tokenId);
+                nftTxByTokenRef.current[tokenId] = tx.hash;
                 writeCachedNFTMetadata(chainId, contracts.simpleNFT, tokenId, {
                   name: metadata?.name?.trim() || "",
                   description: metadata?.description || "",

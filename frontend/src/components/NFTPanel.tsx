@@ -483,7 +483,7 @@ const NFTPanel: React.FC<NFTPanelProps> = ({
                     className="btn btn-secondary btn-full"
                   >
                     <ExternalLink size={16} />
-                    View on Explorer
+                    {selectedNFT.txHash ? "View Transaction" : "View Token"}
                   </a>
                   {selectedNFT.txHash && (
                     <div className="nft-tx-hash">
