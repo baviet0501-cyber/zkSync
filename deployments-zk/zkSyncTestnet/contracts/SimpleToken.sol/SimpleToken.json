@@ -679,6 +679,54 @@
       "factoryDeps": [],
       "address": "0xc7cf6c946EAB57c5b22De8d3E67970De57DE1E2D",
       "txHash": "0x183faadfd94825fb9d15135bfef5a255a17b208f19781a467c31e6e9fd0d9ec4"
+    },
+    {
+      "constructorArgs": [
+        "zkSync Demo Token",
+        "ZKDT",
+        "1000000000000000000000000"
+      ],
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "deploymentType": "create",
+      "factoryDeps": [],
+      "address": "0x5199BaD8c3Ec1958B59EC43DcBA029Cc1d857C56",
+      "txHash": "0x55927db0ee9a88a5ff140669dd132b36d6e0cd00eba566b8015d6819072afdad"
+    },
+    {
+      "constructorArgs": [
+        "zkSync Demo Token",
+        "ZKDT",
+        "1000000000000000000000000"
+      ],
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "deploymentType": "create",
+      "factoryDeps": [],
+      "address": "0xACa5c86C11feD0138C52F00B331025C51d562685",
+      "txHash": "0x1aff2986a31ae7fb904e95b9edc6238550c16870cd3c8457f91d1fff1f733f59"
+    },
+    {
+      "constructorArgs": [
+        "zkSync Demo Token",
+        "ZKDT",
+        "1000000000000000000000000"
+      ],
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "deploymentType": "create",
+      "factoryDeps": [],
+      "address": "0x20F12c4D2F6E3e512A0CDB6be1B491e6A7AF5190",
+      "txHash": "0x99621c9890d42d86487cb386e07ca32828d831ed453070dfe419b167f9982fc4"
+    },
+    {
+      "constructorArgs": [
+        "zkSync Demo Token",
+        "ZKDT",
+        "1000000000000000000000000"
+      ],
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "deploymentType": "create",
+      "factoryDeps": [],
+      "address": "0xE31a2407D074B84A6A32dc91ACb16c53AE0Ae85C",
+      "txHash": "0xd7aadac85970d623066feaabf2d6d91340f2cfe27928f69387fac7399bc01336"
     }
   ]
 }
