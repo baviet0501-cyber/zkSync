@@ -727,6 +727,18 @@
       "factoryDeps": [],
       "address": "0xE31a2407D074B84A6A32dc91ACb16c53AE0Ae85C",
       "txHash": "0xd7aadac85970d623066feaabf2d6d91340f2cfe27928f69387fac7399bc01336"
+    },
+    {
+      "constructorArgs": [
+        "zkSync Demo Token",
+        "ZKDT",
+        "1000000000000000000000000"
+      ],
+      "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "deploymentType": "create",
+      "factoryDeps": [],
+      "address": "0x44Af3d0815d55c1133003dC8E32D0dBdD0663413",
+      "txHash": "0xaa3881807d8fe95130601495636cc9dd7f1ac81e806b3a58e2f5f92f62542ec0"
     }
   ]
 }

@@ -65,6 +65,8 @@ const App: React.FC = () => {
     switchToZkSync,
     updateGreeting,
     sendTokens,
+    mintToken,
+    burnToken,
     mintNFT,
     burnNFT,
     refreshContractData,
@@ -205,7 +207,11 @@ const App: React.FC = () => {
               isConnected={wallet.isConnected}
               isProcessing={isProcessing}
               txResult={txResult}
+              walletAddress={wallet.address}
+              paymasterEnabled={CONTRACT_ADDRESSES.paymaster !== ZERO_ADDRESS}
               onSendTokens={sendTokens}
+              onMintTokens={mintToken}
+              onBurnTokens={burnToken}
             />
           )}
 

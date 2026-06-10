@@ -1,13 +1,17 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { getEthers } from "../utils/ethersLazy";
 import type { providers } from "ethers";
-import type { WalletState, ContractAddresses, NFTToken, NFTStatus } from "../types";
+import type { WalletState, ContractAddresses, NFTToken, NFTStatus, TokenData } from "../types";
 import {
   NFT_ABI,
+  PAYMASTER_ABI,
+  TOKEN_ABI,
   fetchGreeting,
   setGreeting,
   getTokenBalance,
   transferToken,
+  mintTokens as contractMintTokens,
+  burnTokens as contractBurnTokens,
   getNFTCollectionInfo,
   getOwnerNFTs,
   mintDefaultNFT,
@@ -192,13 +196,7 @@ interface ZkSyncState {
     lastUpdated: number;
     chainId: number;
   } | null;
-  token: {
-    name: string;
-    symbol: string;
-    balance: string;
-    totalSupply: string;
-    decimals: number;
-  } | null;
+  token: TokenData | null;
   nftCollection: {
     name: string;
     symbol: string;
@@ -253,6 +251,77 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
     walletProviderRef.current = provider;
     return provider;
   }, []);
+
+  const createWriteProvider = useCallback(async (ethereum: NonNullable<Window["ethereum"]>) => {
+    const { Web3Provider } = await import("zksync-ethers");
+    return new Web3Provider(ethereum);
+  }, []);
+
+  const getPaymasterOverrides = useCallback(async () => {
+    if (
+      !isZkSyncChain(state.wallet.network?.chainId) ||
+      !state.wallet.address ||
+      contracts.paymaster === ZERO_ADDRESS ||
+      contracts.simpleToken === ZERO_ADDRESS
+    ) {
+      return undefined;
+    }
+
+    try {
+      const provider = zkSyncProviderRef.current;
+      if (!provider) return undefined;
+
+      const e = await getEthers();
+      const paymaster = new e.Contract(contracts.paymaster, PAYMASTER_ABI, provider);
+      const token = new e.Contract(contracts.simpleToken, TOKEN_ABI, provider);
+      const [paymasterInfo, paymasterStats, tokenBalance] = await Promise.all([
+        paymaster.getPaymasterInfo(),
+        paymaster.getPaymasterStats(),
+        token.balanceOf(state.wallet.address),
+      ]);
+
+      const acceptedToken = paymasterInfo[0] as string;
+      const ethBalance = paymasterStats[0];
+      if (acceptedToken.toLowerCase() !== contracts.simpleToken.toLowerCase()) {
+        console.warn("Paymaster token does not match SimpleToken; using native ETH gas.");
+        return undefined;
+      }
+
+      if (ethBalance.isZero()) {
+        console.warn("Paymaster has no ETH; using native ETH gas.");
+        return undefined;
+      }
+
+      if (tokenBalance.isZero()) {
+        console.info("Paymaster will sponsor gas because the wallet has no SimpleToken balance.");
+      }
+
+      const { utils } = await import("zksync-ethers");
+
+      return {
+        customData: {
+          gasPerPubdata: utils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
+          paymasterParams: utils.getPaymasterParams(contracts.paymaster, {
+            type: "ApprovalBased",
+            token: contracts.simpleToken,
+            minimalAllowance: e.constants.MaxUint256,
+            innerInput: new Uint8Array(),
+          }),
+        },
+      };
+    } catch (error) {
+      console.warn(
+        "Paymaster is not ready or is still the old educational contract; using native ETH gas.",
+        error
+      );
+      return undefined;
+    }
+  }, [
+    contracts.paymaster,
+    contracts.simpleToken,
+    state.wallet.address,
+    state.wallet.network?.chainId,
+  ]);
 
   useEffect(() => {
     let cancelled = false;
@@ -601,10 +670,14 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
       try {
         setState((prev) => ({ ...prev, isProcessing: true, txResult: null }));
 
-        const e = await getEthers();
-        const provider = new e.providers.Web3Provider(ethereum);
+        const provider = await createWriteProvider(ethereum);
         const signer = provider.getSigner();
-        const tx = await setGreeting(contracts.greeter, newGreeting, signer);
+        const tx = await setGreeting(
+          contracts.greeter,
+          newGreeting,
+          signer,
+          await getPaymasterOverrides()
+        );
         const receipt = await tx.wait();
         const greeterData =
           receipt.status === 1
@@ -644,7 +717,14 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
         }));
       }
     },
-    [contracts.greeter, resolveWalletProvider, state.wallet.address, state.wallet.network]
+    [
+      contracts.greeter,
+      createWriteProvider,
+      getPaymasterOverrides,
+      resolveWalletProvider,
+      state.wallet.address,
+      state.wallet.network,
+    ]
   );
 
   /**
@@ -662,7 +742,7 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
         setState((prev) => ({ ...prev, isProcessing: true, txResult: null }));
 
         const e = await getEthers();
-        const provider = new e.providers.Web3Provider(ethereum);
+        const provider = await createWriteProvider(ethereum);
         const signer = provider.getSigner();
 
         const tx = await transferToken(
@@ -670,7 +750,8 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
           to,
           amount,
           state.token?.decimals || 18,
-          signer
+          signer,
+          await getPaymasterOverrides()
         );
         const receipt = await tx.wait();
 
@@ -684,7 +765,7 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
             : null;
         const freshWalletBalance =
           receipt.status === 1 && state.wallet.address
-            ? e.utils.formatEther(await provider.getBalance(state.wallet.address))
+            ? `${parseFloat(e.utils.formatEther(await provider.getBalance(state.wallet.address))).toFixed(4)} ETH`
             : null;
 
         setState((prev) => ({
@@ -715,7 +796,165 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
         }));
       }
     },
-    [contracts.simpleToken, resolveWalletProvider, state.wallet.address, state.wallet.network, state.token]
+    [
+      contracts.simpleToken,
+      createWriteProvider,
+      getPaymasterOverrides,
+      resolveWalletProvider,
+      state.wallet.address,
+      state.wallet.network,
+      state.token,
+    ]
+  );
+
+  /**
+   * Mint ERC-20 tokens. The SimpleToken contract restricts this to the owner.
+   */
+  const mintToken = useCallback(
+    async (to: string, amount: string) => {
+      const ethereum = walletProviderRef.current || (await resolveWalletProvider());
+      if (!ethereum || !state.wallet.address) {
+        updateWallet({ error: "Wallet not connected" });
+        return;
+      }
+
+      if (state.token?.owner?.toLowerCase() !== state.wallet.address.toLowerCase()) {
+        updateWallet({ error: "Only the SimpleToken owner can mint tokens." });
+        return;
+      }
+
+      try {
+        setState((prev) => ({ ...prev, isProcessing: true, txResult: null }));
+
+        const e = await getEthers();
+        const provider = await createWriteProvider(ethereum);
+        const signer = provider.getSigner();
+
+        const tx = await contractMintTokens(
+          contracts.simpleToken,
+          to,
+          amount,
+          state.token?.decimals || 18,
+          signer,
+          await getPaymasterOverrides()
+        );
+        const receipt = await tx.wait();
+
+        const freshTokenData =
+          receipt.status === 1
+            ? await getTokenBalance(contracts.simpleToken, state.wallet.address, provider)
+            : null;
+        const freshWalletBalance =
+          receipt.status === 1
+            ? `${parseFloat(e.utils.formatEther(await provider.getBalance(state.wallet.address))).toFixed(4)} ETH`
+            : null;
+
+        setState((prev) => ({
+          ...prev,
+          token: freshTokenData || prev.token,
+          wallet: freshWalletBalance
+            ? { ...prev.wallet, balance: freshWalletBalance }
+            : prev.wallet,
+          isProcessing: false,
+          txResult: {
+            hash: tx.hash,
+            explorerUrl: getExplorerUrl(state.wallet.network?.chainId || 300, tx.hash),
+            status: receipt.status === 1 ? "Tokens minted" : "failed",
+          },
+        }));
+      } catch (error: any) {
+        setState((prev) => ({
+          ...prev,
+          isProcessing: false,
+          txResult: {
+            hash: "",
+            explorerUrl: "",
+            status: `Error: ${error.message}`,
+          },
+        }));
+      }
+    },
+    [
+      contracts.simpleToken,
+      createWriteProvider,
+      getPaymasterOverrides,
+      resolveWalletProvider,
+      state.token,
+      state.wallet.address,
+      state.wallet.network,
+    ]
+  );
+
+  /**
+   * Burn ERC-20 tokens from the connected wallet.
+   */
+  const burnToken = useCallback(
+    async (amount: string) => {
+      const ethereum = walletProviderRef.current || (await resolveWalletProvider());
+      if (!ethereum || !state.wallet.address) {
+        updateWallet({ error: "Wallet not connected" });
+        return;
+      }
+
+      try {
+        setState((prev) => ({ ...prev, isProcessing: true, txResult: null }));
+
+        const e = await getEthers();
+        const provider = await createWriteProvider(ethereum);
+        const signer = provider.getSigner();
+
+        const tx = await contractBurnTokens(
+          contracts.simpleToken,
+          amount,
+          state.token?.decimals || 18,
+          signer,
+          await getPaymasterOverrides()
+        );
+        const receipt = await tx.wait();
+
+        const freshTokenData =
+          receipt.status === 1
+            ? await getTokenBalance(contracts.simpleToken, state.wallet.address, provider)
+            : null;
+        const freshWalletBalance =
+          receipt.status === 1
+            ? `${parseFloat(e.utils.formatEther(await provider.getBalance(state.wallet.address))).toFixed(4)} ETH`
+            : null;
+
+        setState((prev) => ({
+          ...prev,
+          token: freshTokenData || prev.token,
+          wallet: freshWalletBalance
+            ? { ...prev.wallet, balance: freshWalletBalance }
+            : prev.wallet,
+          isProcessing: false,
+          txResult: {
+            hash: tx.hash,
+            explorerUrl: getExplorerUrl(state.wallet.network?.chainId || 300, tx.hash),
+            status: receipt.status === 1 ? "Tokens burned" : "failed",
+          },
+        }));
+      } catch (error: any) {
+        setState((prev) => ({
+          ...prev,
+          isProcessing: false,
+          txResult: {
+            hash: "",
+            explorerUrl: "",
+            status: `Error: ${error.message}`,
+          },
+        }));
+      }
+    },
+    [
+      contracts.simpleToken,
+      createWriteProvider,
+      getPaymasterOverrides,
+      resolveWalletProvider,
+      state.token?.decimals,
+      state.wallet.address,
+      state.wallet.network,
+    ]
   );
 
   /**
@@ -753,8 +992,9 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
         setState((prev) => ({ ...prev, isProcessing: true, txResult: null }));
 
         const e = await getEthers();
-        const provider = new e.providers.Web3Provider(ethereum);
+        const provider = await createWriteProvider(ethereum);
         const signer = provider.getSigner();
+        const paymasterOverrides = await getPaymasterOverrides();
 
         // Build custom metadata JSON if image was uploaded
         const chainId = state.wallet.network?.chainId || 300;
@@ -778,12 +1018,14 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
                 contracts.simpleNFT,
                 state.wallet.address,
                 metadataURI,
-                signer
+                signer,
+                paymasterOverrides
               )
             : await mintDefaultNFT(
                 contracts.simpleNFT,
                 state.wallet.address,
-                signer
+                signer,
+                paymasterOverrides
               );
 
           lastTxHash = tx.hash;
@@ -886,6 +1128,8 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
     },
     [
       contracts.simpleNFT,
+      createWriteProvider,
+      getPaymasterOverrides,
       resolveWalletProvider,
       state.wallet.address,
       state.wallet.network,
@@ -928,11 +1172,15 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
       try {
         setState((prev) => ({ ...prev, isProcessing: true, txResult: null }));
 
-        const e = await getEthers();
-        const provider = new e.providers.Web3Provider(ethereum);
+        const provider = await createWriteProvider(ethereum);
         const signer = provider.getSigner();
 
-        const tx = await contractBurnNFT(contracts.simpleNFT, tokenId, signer);
+        const tx = await contractBurnNFT(
+          contracts.simpleNFT,
+          tokenId,
+          signer,
+          await getPaymasterOverrides()
+        );
         const receipt = await tx.wait();
 
         // Refresh NFT data after burn
@@ -964,7 +1212,14 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
         }));
       }
     },
-    [contracts.simpleNFT, resolveWalletProvider, state.wallet.address, state.wallet.network]
+    [
+      contracts.simpleNFT,
+      createWriteProvider,
+      getPaymasterOverrides,
+      resolveWalletProvider,
+      state.wallet.address,
+      state.wallet.network,
+    ]
   );
 
   // ==========================================================================
@@ -1071,6 +1326,8 @@ export function useZkSync(contracts: ContractAddresses = DEFAULT_CONTRACTS) {
     switchToZkSync,
     updateGreeting,
     sendTokens,
+    mintToken,
+    burnToken,
     mintNFT,
     burnNFT,
     refreshContractData,

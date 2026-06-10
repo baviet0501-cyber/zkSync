@@ -84,6 +84,15 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   ]);
 
   const paymasterAddress = await paymaster.getAddress();
+  const paymasterFunding = parseEther(process.env.PAYMASTER_FUNDING_ETH || "0.02");
+
+  if (paymasterFunding > 0n) {
+    const fundingTx = await deployer.zkWallet.sendTransaction({
+      to: paymasterAddress,
+      value: paymasterFunding,
+    });
+    await fundingTx.wait();
+  }
   console.log(`   ✅ Paymaster deployed to: ${paymasterAddress}`);
   console.log(`   💳  Accepts: ZKDT tokens for gas payments\n`);
 
