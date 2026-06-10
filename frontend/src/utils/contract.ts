@@ -1,6 +1,8 @@
 import { getEthers } from "./ethersLazy";
 import type { providers, Signer } from "ethers";
 
+type TxOverrides = Record<string, unknown>;
+
 // Greeter ABI
 export const GREETER_ABI = [
   "function greet() view returns (string)",
@@ -19,12 +21,19 @@ export const TOKEN_ABI = [
   "function symbol() view returns (string)",
   "function decimals() view returns (uint8)",
   "function totalSupply() view returns (uint256)",
+  "function MAX_SUPPLY() view returns (uint256)",
+  "function totalBurned() view returns (uint256)",
+  "function owner() view returns (address)",
   "function balanceOf(address account) view returns (uint256)",
   "function transfer(address to, uint256 amount) returns (bool)",
   "function approve(address spender, uint256 amount) returns (bool)",
   "function allowance(address owner, address spender) view returns (uint256)",
+  "function mintTokens(address to, uint256 amount)",
+  "function burn(uint256 amount)",
+  "function burnFrom(address account, uint256 amount)",
   "function getTokenInfo() view returns (string, string, uint256, uint256, uint256, uint256)",
   "event Transfer(address indexed from, address indexed to, uint256 value)",
+  "event TokensMinted(address indexed to, uint256 amount, uint256 timestamp)",
 ];
 
 // Paymaster ABI
@@ -32,6 +41,8 @@ export const PAYMASTER_ABI = [
   "function acceptedToken() view returns (address)",
   "function owner() view returns (address)",
   "function getPaymasterInfo() view returns (address, address, uint256)",
+  "function getPaymasterStats() view returns (uint256, uint256, uint256)",
+  "function quoteTokenFee(uint256 ethFee) view returns (uint256)",
 ];
 
 // SimpleNFT ERC-721 ABI
@@ -94,7 +105,8 @@ export async function fetchGreeting(
 export async function setGreeting(
   contractAddress: string,
   newGreeting: string,
-  signer: Signer
+  signer: Signer,
+  txOverrides?: TxOverrides
 ): Promise<any> {
   const e = await getEthers();
   const contract = new e.Contract(
@@ -103,7 +115,7 @@ export async function setGreeting(
     signer
   );
 
-  const tx = await contract.setGreeting(newGreeting);
+  const tx = await contract.setGreeting(newGreeting, txOverrides || {});
   return tx;
 }
 
@@ -120,6 +132,9 @@ export async function getTokenBalance(
   decimals: number;
   balance: string;
   totalSupply: string;
+  maxSupply: string;
+  totalBurned: string;
+  owner: string;
 }> {
   const e = await getEthers();
   const contract = new e.Contract(
@@ -128,18 +143,24 @@ export async function getTokenBalance(
     provider
   );
 
-  const name = await contract.name();
-  const symbol = await contract.symbol();
-  const decimals = await contract.decimals();
-  const balance = await contract.balanceOf(userAddress);
-  const totalSupply = await contract.totalSupply();
+  const [name, symbol, decimals, balance, info, owner] = await Promise.all([
+    contract.name(),
+    contract.symbol(),
+    contract.decimals(),
+    contract.balanceOf(userAddress),
+    contract.getTokenInfo(),
+    contract.owner(),
+  ]);
 
   return {
     name,
     symbol,
     decimals,
     balance: e.utils.formatUnits(balance, decimals),
-    totalSupply: e.utils.formatUnits(totalSupply, decimals),
+    totalSupply: e.utils.formatUnits(info[2], decimals),
+    maxSupply: e.utils.formatUnits(info[3], decimals),
+    totalBurned: e.utils.formatUnits(info[5], decimals),
+    owner,
   };
 }
 
@@ -151,7 +172,8 @@ export async function transferToken(
   to: string,
   amount: string,
   decimals: number,
-  signer: Signer
+  signer: Signer,
+  txOverrides?: TxOverrides
 ): Promise<any> {
   const e = await getEthers();
   const contract = new e.Contract(
@@ -161,7 +183,42 @@ export async function transferToken(
   );
 
   const parsedAmount = e.utils.parseUnits(amount, decimals);
-  const tx = await contract.transfer(to, parsedAmount);
+  const tx = await contract.transfer(to, parsedAmount, txOverrides || {});
+  return tx;
+}
+
+/**
+ * Mint ERC-20 tokens. Only the SimpleToken owner can call this.
+ */
+export async function mintTokens(
+  tokenAddress: string,
+  to: string,
+  amount: string,
+  decimals: number,
+  signer: Signer,
+  txOverrides?: TxOverrides
+): Promise<any> {
+  const e = await getEthers();
+  const contract = new e.Contract(tokenAddress, TOKEN_ABI, signer);
+  const parsedAmount = e.utils.parseUnits(amount, decimals);
+  const tx = await contract.mintTokens(to, parsedAmount, txOverrides || {});
+  return tx;
+}
+
+/**
+ * Burn ERC-20 tokens from the connected wallet.
+ */
+export async function burnTokens(
+  tokenAddress: string,
+  amount: string,
+  decimals: number,
+  signer: Signer,
+  txOverrides?: TxOverrides
+): Promise<any> {
+  const e = await getEthers();
+  const contract = new e.Contract(tokenAddress, TOKEN_ABI, signer);
+  const parsedAmount = e.utils.parseUnits(amount, decimals);
+  const tx = await contract.burn(parsedAmount, txOverrides || {});
   return tx;
 }
 
@@ -241,11 +298,12 @@ export async function mintNFT(
   nftAddress: string,
   to: string,
   uri: string,
-  signer: Signer
+  signer: Signer,
+  txOverrides?: TxOverrides
 ): Promise<any> {
   const e = await getEthers();
   const contract = new e.Contract(nftAddress, NFT_ABI, signer);
-  const tx = await contract.mintNFT(to, uri);
+  const tx = await contract.mintNFT(to, uri, txOverrides || {});
   return tx;
 }
 
@@ -255,11 +313,12 @@ export async function mintNFT(
 export async function mintDefaultNFT(
   nftAddress: string,
   to: string,
-  signer: Signer
+  signer: Signer,
+  txOverrides?: TxOverrides
 ): Promise<any> {
   const e = await getEthers();
   const contract = new e.Contract(nftAddress, NFT_ABI, signer);
-  const tx = await contract.mintDefaultNFT(to);
+  const tx = await contract.mintDefaultNFT(to, txOverrides || {});
   return tx;
 }
 
@@ -282,11 +341,12 @@ export async function tokenExists(
 export async function burnNFT(
   nftAddress: string,
   tokenId: string,
-  signer: Signer
+  signer: Signer,
+  txOverrides?: TxOverrides
 ): Promise<any> {
   const e = await getEthers();
   const contract = new e.Contract(nftAddress, NFT_ABI, signer);
-  const tx = await contract.burn(tokenId);
+  const tx = await contract.burn(tokenId, txOverrides || {});
   return tx;
 }
 

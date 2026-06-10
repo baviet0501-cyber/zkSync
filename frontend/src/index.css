@@ -779,6 +779,54 @@ a:hover {
   color: var(--text-muted);
 }
 
+.token-header-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.badge-paymaster {
+  background: rgba(0, 212, 170, 0.12);
+  color: var(--accent);
+  border-color: rgba(0, 212, 170, 0.28);
+}
+
+.token-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.token-info-item {
+  min-width: 0;
+  padding: 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.token-info-wide {
+  grid-column: 1 / -1;
+}
+
+.token-info-item span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.token-info-item strong {
+  display: block;
+  color: var(--text);
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+}
+
 .token-placeholder {
   text-align: center;
   padding: 30px 20px;
@@ -794,9 +842,67 @@ a:hover {
   font-size: 0.85rem;
 }
 
-.transfer-form {
+.transfer-form,
+.token-actions-panel {
   padding-top: 16px;
   border-top: 1px solid var(--border);
+}
+
+.token-action-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  padding: 4px;
+  margin-bottom: 16px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.token-action-tab {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+
+.token-action-tab:hover:not(:disabled),
+.token-action-tab.active {
+  background: var(--bg-card);
+  color: var(--text);
+}
+
+.token-action-tab:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.token-action-form {
+  min-height: 230px;
+}
+
+.token-action-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  color: var(--text-secondary);
+  background: rgba(255, 193, 7, 0.08);
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
 }
 
 /* ==========================================================================

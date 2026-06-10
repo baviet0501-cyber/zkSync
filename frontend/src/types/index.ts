@@ -28,6 +28,9 @@ export interface TokenData {
   totalSupply: string;
   balance: string;
   decimals: number;
+  maxSupply: string;
+  totalBurned: string;
+  owner: string;
 }
 
 export type NFTStatus = "pending" | "confirmed" | "failed";
